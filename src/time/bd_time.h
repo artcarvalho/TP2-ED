@@ -4,10 +4,14 @@
 #include "time.h"
 
 typedef struct{
-    Time *times;
+    Time *times[10];
     int qtd;
 } BDTimes;
 
-BDTimes* carregarTimes(const char *path);
+BDTimes* carregaTimes(const char *path);
+
+BDTimes* criaBDTimes();
+
+void liberarBDTimes(BDTimes *bd);
 
 #endif

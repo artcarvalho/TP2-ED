@@ -3,7 +3,7 @@
 
 typedef struct{
     int id;
-    char nome[50];
+    char *nome;
 
     int vitorias;
     int empates;
@@ -14,6 +14,7 @@ typedef struct{
 
 } Time;
 
-Time* criarTime();
+Time* criarTime(int id, const char *nome);
+void liberarTime(Time* t);
 
 #endif

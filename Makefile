@@ -1,0 +1,22 @@
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c11 -Isrc/time -Isrc/partida
+TARGET = build/programa
+SRC = src/main.c \
+	src/time/time.c \
+	src/time/bd_time.c \
+	src/partida/partida.c \
+	src/partida/bd_partida.c
+
+.PHONY: all run clean
+
+all: run
+
+run: $(TARGET)
+	./$(TARGET)
+
+$(TARGET): $(SRC)
+	mkdir -p build
+	$(CC) $(CFLAGS) $(SRC) -o $(TARGET)
+
+clean:
+	rm -rf build

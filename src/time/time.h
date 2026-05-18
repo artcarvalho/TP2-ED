@@ -14,7 +14,7 @@ typedef struct{
 
 } Time;
 
-Time* criarTime(int id, const char *nome);
-void liberarTime(Time* t);
+Time* criaTime(int id, const char *nome);
+void liberaTime(Time* t);
 
 #endif

@@ -1,18 +1,16 @@
 #ifndef BD_PARTIDA_H
 #define BD_PARTIDA_H
 
-
 #include "partida.h"
+#include "bd_time.h" 
 
-typedef struct{
-    Partida *Partidas[45];
-    int qtd;
+typedef struct {
+    Partida partidas[150]; 
+    int qtd;                        
 } BDPartidas;
 
-Partida * carregaPartida(const char *path);
-
-Partida* criaBDPartida();
-
-void LiberaBDPartidas(BDTimes *bd);
+BDPartidas* criaBDPartidas();
+void liberarBDPartidas(BDPartidas *bd);
+BDPartidas* carregaPartidas(const char *path);
 
 #endif

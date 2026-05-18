@@ -12,6 +12,6 @@ BDTimes* carregaTimes(const char *path);
 
 BDTimes* criaBDTimes();
 
-void liberarBDTimes(BDTimes *bd);
+void liberaBDTimes(BDTimes *bd);
 
 #endif

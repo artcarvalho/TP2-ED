@@ -15,6 +15,8 @@ BDTimes *criaBDTimes(){
         bd->times[i] = NULL;
     }
 
+    bd->qtd = 0;
+
     return bd;
 }
 
@@ -48,7 +50,7 @@ BDTimes *carregaTimes(const char *path){
 
         char *nome = strtok(NULL, ",");
 
-        Time *t = criarTime(id, nome);
+        Time *t = criaTime(id, nome);
 
         bd->times[id] = t;
         bd->qtd++;
@@ -59,12 +61,12 @@ BDTimes *carregaTimes(const char *path){
     return bd;
 }
 
-void liberarBDTimes(BDTimes *bd) {
+void liberaBDTimes(BDTimes *bd) {
     if (bd == NULL) return;
 
     for (int i = 0; i < 10; i++) {
         if (bd->times[i] != NULL) {
-            liberarTime(bd->times[i]);
+            liberaTime(bd->times[i]);
         }
     }
     free(bd); 

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Time* criarTime(int id, const char *nome){
+Time* criaTime(int id, const char *nome){
     Time *t = (Time*) malloc(sizeof(Time)); 
 
     if(t == NULL){
@@ -10,7 +10,7 @@ Time* criarTime(int id, const char *nome){
     }
 
     t->id = id;
-    t->nome = (char*) malloc((sizeof(nome)+1) * sizeof(char));
+    t->nome = (char*) malloc(strlen(nome) + 1);
     
     if (t->nome != NULL){
         strcpy(t->nome, nome);   
@@ -26,7 +26,7 @@ Time* criarTime(int id, const char *nome){
     return t;
 }
 
-void liberarTime(Time* t) {
+void liberaTime(Time* t) {
     if (t != NULL) {
         free(t->nome); // Libera a string primeiro
         free(t);       // Libera a estrutura depois

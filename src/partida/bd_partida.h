@@ -5,11 +5,14 @@
 #include "partida.h"
 
 typedef struct{
-    Partida *Partidas;
+    Partida *Partidas[45];
     int qtd;
 } BDPartidas;
 
-void carregaPartida(const char *path);
+Partida * carregaPartida(const char *path);
 
+Partida* criaBDPartida();
+
+void LiberaBDPartidas(BDTimes *bd);
 
 #endif

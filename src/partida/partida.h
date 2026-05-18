@@ -13,6 +13,10 @@ typedef struct{
     int gols_time2;
 } Partida;
 
+Partida * criaPartida();
+
+void liberarPartida();
+
 void calculaEstatisticas(Partida *p);
 
 #endif

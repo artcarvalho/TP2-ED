@@ -17,4 +17,7 @@ typedef struct{
 Time* criaTime(int id, const char *nome);
 void liberaTime(Time* t);
 
+int obterPontosGanhos(Time *t);
+int obterSaldoGols(Time *t);
+
 #endif

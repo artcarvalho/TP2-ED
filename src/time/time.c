@@ -22,7 +22,6 @@ Time* criaTime(int id, const char *nome){
     t->gols_marcados=0;
     t->gols_sofridos=0;
 
-
     return t;
 }
 
@@ -31,4 +30,14 @@ void liberaTime(Time* t) {
         free(t->nome); // Libera a string primeiro
         free(t);       // Libera a estrutura depois
     }
+}
+
+int obterPontosGanhos(Time *t) {
+    if (t == NULL) return 0;
+    return (t->v * 3) + t->e; 
+}
+
+int obterSaldoGols(Time *t) {
+    if (t == NULL) return 0;
+    return t->gm - t->gs;
 }

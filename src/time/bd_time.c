@@ -71,3 +71,61 @@ void liberaBDTimes(BDTimes *bd) {
     }
     free(bd); 
 }
+
+Time *buscaTimes(const char *busca, BDTimes *bd){
+    if(bd == NULL){
+        return NULL;
+    }
+
+    for(i=0; i < bd->qtd; i++){
+        bd->times[i]->
+    }
+}
+
+Time* buscaTimePorId(BDTimes *bd, int id) {
+    if (bd == NULL || id < 0 || id >= 10) return NULL;
+    return bd->times[id]; 
+}
+
+void consultarTime(BDTimes *bd, const char *prefixo) {
+    if (bd == NULL || prefixo == NULL) return;
+    int encontrado = 0;
+    int tam_prefixo = strlen(prefixo);
+
+    for (int i = 0; i < 10; i++) {
+        if (bd->times[i] != NULL) {
+            // Verifica se o nome do time inicia com o prefixo digitado
+            if (strncmp(bd->times[i]->nome, prefixo, tam_prefixo) == 0) {
+                if (!encontrado) {
+                    
+                    printf("ID Time\t V E D GM GS S PG\n");
+                    encontrado = 1;
+                }
+                Time *t = bd->times[i];
+                printf("%d %s\t %d %d %d %d %d %d %d\n",
+                       t->id, t->nome, t->v, t->e, t->d, t->gm, t->gs,
+                       obterSaldoGols(t), obterPontosGanhos(t));
+            }
+        }
+    }
+    if (!encontrado) {
+        printf("Nenhum time encontrado com o prefixo \"%s\".\n", prefixo);
+    }
+}
+
+void imprimirTabelaClassificacao(BDTimes *bd) {
+    if (bd == NULL) return;
+    printf("Imprimindo classificação...\n\n");
+    
+    printf("ID Time\t V E D GM GS S PG\n");
+
+    for (int i = 0; i < 10; i++) {
+        if (bd->times[i] != NULL) {
+            Time *t = bd->times[i];
+            
+            printf("%d %s\t %d %d %d %d %d %d %d\n",
+                   t->id, t->nome, t->v, t->e, t->d, t->gm, t->gs,
+                   obterSaldoGols(t), obterPontosGanhos(t));
+        }
+    }
+}

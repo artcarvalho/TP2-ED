@@ -13,6 +13,4 @@ typedef struct {
 
 Partida criaPartida(int id, int idt1, int idt2, int gt1, int gt2);
 
-void calculaEstatisticas(Partida *p);
-
 #endif

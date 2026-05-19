@@ -13,4 +13,8 @@ BDPartidas* criaBDPartidas();
 void liberarBDPartidas(BDPartidas *bd);
 BDPartidas* carregaPartidas(const char *path);
 
+
+void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *nome_busca, int modo);
+void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times);
+
 #endif

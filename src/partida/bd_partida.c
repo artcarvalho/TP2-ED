@@ -31,7 +31,7 @@ BDPartidas* carregaPartidas(const char *path) {
     }
 
     char linha[200];
-    fgets(linha, sizeof(linha), a); // Consome e pula o cabeçalho (header) do CSV
+    fgets(linha, sizeof(linha), a); //pula o cabeçalho do CSV
 
     while (fgets(linha, sizeof(linha), a) != NULL) {
 
@@ -62,5 +62,70 @@ BDPartidas* carregaPartidas(const char *path) {
 
     fclose(a);
     return bd;
+}
+
+void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *nome_busca, int modo) {
+    if (bd_partidas == NULL || bd_times == NULL || nome_busca == NULL) return;
+    int encontrado = 0;
+    int tam_busca = strlen(nome_busca);
+
+    for (int i = 0; i < bd_partidas->qtd; i++) {
+        Partida p = bd_partidas->partidas[i];
+        
+        //Usa a busca por ID para descobrir os nomes das equipes participantes
+        Time *t1 = buscarTimePorId(bd_times, p.id_time1);
+        Time *t2 = buscarTimePorId(bd_times, p.id_time2);
+
+        if (t1 == NULL || t2 == NULL) continue;
+
+        int corresponde = 0;
+
+        // Filtra os placares dependendo do modo de consulta selecionado pelo usuário
+        if (modo == 1 && strncmp(t1->nome, nome_busca, tam_busca) == 0) corresponde = 1;
+        else if (modo == 2 && strncmp(t2->nome, nome_busca, tam_busca) == 0) corresponde = 1;
+        else if (modo == 3 && (strncmp(t1->nome, nome_busca, tam_busca) == 0 || strncmp(t2->nome, nome_busca, tam_busca) == 0)) {
+            corresponde = 1;
+        }
+
+        if (corresponde) {
+            if (!encontrado) {
+                printf("%-3s %-15s       %-15s\n", "ID", "Time1", "Time2");
+                encontrado = 1;
+            }
+            printf("%-3d %-15s %d x %d  %-15s\n", p.id, t1->nome, p.gols_time1, p.gols_time2, t2->nome);
+        }
+    }
+    if (!encontrado) {
+        printf("Nenhuma partida encontrada para a busca \"%s\".\n", nome_busca);
+    }
+}
+
+void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times) {
+    if (bd_partidas == NULL || bd_times == NULL) return;
+
+    //Distribui os pontos
+    for (int i = 0; i < bd_partidas->qtd; i++) {
+        Partida p = bd_partidas->partidas[i];
+        Time *t1 = buscarTimePorId(bd_times, p.id_time1);
+        Time *t2 = buscarTimePorId(bd_times, p.id_time2);
+
+        //Atualiza a quantidade de gols marcados e sofridos de ambos
+        t1->gm += p.gols_time1;
+        t1->gs += p.gols_time2;
+        t2->gm += p.gols_time2;
+        t2->gs += p.gols_time1;
+
+        // Avalia as condições para computar Vitórias, Empates e Derrotas
+        if (p.gols_time1 > p.gols_time2) {
+            t1->v++;
+            t2->d++;
+        } else if (p.gols_time1 < p.gols_time2) {
+            t2->v++;
+            t1->d++;
+        } else {
+            t1->e++;
+            t2->e++;
+        }
+    }
 }
 

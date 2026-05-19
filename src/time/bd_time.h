@@ -3,15 +3,18 @@
 
 #include "time.h"
 
-typedef struct{
+typedef struct
+{
     Time *times[10];
     int qtd;
 } BDTimes;
 
-BDTimes* carregaTimes(const char *path);
+BDTimes *carregaTimes(const char *path);
 
-BDTimes* criaBDTimes();
+BDTimes *criaBDTimes();
 
 void liberaBDTimes(BDTimes *bd);
+
+void buscaTimes(const char *busca, BDTimes *bd);
 
 #endif

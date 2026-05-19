@@ -10,12 +10,16 @@ typedef struct
 } BDTimes;
 
 BDTimes *criaBDTimes();
+BDTimes *carregaTimes(const char *path);
+
 void liberaBDTimes(BDTimes *bd);
 BDTimes *carregaTimes(const char *path);
 Time *buscaTimePorId(BDTimes *bd, int id);
 
 void buscaTimes(const char *busca, BDTimes *bd);
 void imprimirTabelaClassificacao(BDTimes *bd);
+
+void buscaTimes(const char *busca, BDTimes *bd);
 
 void buscaTimes(const char *busca, BDTimes *bd);
 

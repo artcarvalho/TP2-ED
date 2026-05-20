@@ -103,7 +103,7 @@ void consultarTime(BDTimes *bd, const char *prefixo) {
                 }
                 Time *t = bd->times[i];
                 printf("%d %s\t %d %d %d %d %d %d %d\n",
-                       t->id, t->nome, t->v, t->e, t->d, t->gm, t->gs,
+                       t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
                        obterSaldoGols(t), obterPontosGanhos(t));
             }
         }
@@ -124,7 +124,7 @@ void imprimirTabelaClassificacao(BDTimes *bd) {
             Time *t = bd->times[i];
             
             printf("%d %s\t %d %d %d %d %d %d %d\n",
-                   t->id, t->nome, t->v, t->e, t->d, t->gm, t->gs,
+                   t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
                    obterSaldoGols(t), obterPontosGanhos(t));
         }
     }

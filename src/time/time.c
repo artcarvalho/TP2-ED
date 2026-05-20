@@ -34,10 +34,10 @@ void liberaTime(Time* t) {
 
 int obterPontosGanhos(Time *t) {
     if (t == NULL) return 0;
-    return (t->v * 3) + t->e; 
+    return (t->vitorias * 3) + t->empates; 
 }
 
 int obterSaldoGols(Time *t) {
     if (t == NULL) return 0;
-    return t->gm - t->gs;
+    return t->gols_marcados - t->gols_sofridos;
 }

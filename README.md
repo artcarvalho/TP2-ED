@@ -22,8 +22,6 @@ Separamos nossa implementação por módulos, dividindo source(src) de dados (da
     └── 📁build
         ├── programa
     └── 📁data
-        ├── bd_classificacao.csv
-        ├── bd_partidas.csv
         ├── partidas_completo.csv
         ├── partidas_parcial.csv
         ├── partidas_vazio.csv
@@ -50,8 +48,6 @@ Diagrama feito pela extensão do vscode Draw Folder Structure
 
 
 ## Organização dos Módulos e TADs
-
-
 
 ### Time
 ### TAD Time
@@ -121,9 +117,9 @@ make run PARTIDAS=data/{arquivo}.csv
 Obs: o arquivo compilado será gerado na subpasta /build
 
 
-## Decisões de Implementação Importantes
+## Decisões de Implementação
 
-* Prevenção de Memory Leaks: O gerenciador de times implementa desalocação completa através do ```liberarBDTimes```, aumentando a segurança do sistema ao garantir que cada ponteiro criado dinamicamente por malloc seja liberado individualmente via ```free``` antes de limpar a estrutura pai.
+* Prevenção de Memory Leaks: O gerenciador de times implementa desalocação completa através do ```liberarBDTimes```, garantindo que cada ponteiro criado dinamicamente por malloc seja liberado individualmente via ```free``` antes de limpar a estrutura pai.
 
 * Consumo Previsível: O banco de partidas abdica de ponteiros duplos e alocação dinâmica, resolvendo a leitura de diferentes volumes de arquivos (0, 45 ou 100 linhas) puramente pelo controle do contador interno qtd sobre o vetor estático.
 

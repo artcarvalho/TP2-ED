@@ -8,6 +8,7 @@ int main()
 {
     //printf("=== Iniciando Testes do Campeonato de Futebol ===\n\n");
 
+    // Carrega os dados iniciais usados durante toda a execução do programa.
     BDTimes *meu_banco = carregaTimes("data/times.csv");
     BDPartidas *minhas_partidas = carregaPartidas("data/partidas_completo.csv");
 
@@ -23,9 +24,11 @@ int main()
         return 1;
     }
 
+    // Calcula a classificação antes de exibir o menu principal.
     processaCampeonato(minhas_partidas, meu_banco);
     menu(meu_banco, minhas_partidas);
 
+    // Libera os bancos alocados antes de encerrar o programa.
     printf("Limpando a memoria alocada...\n");
     liberaBDTimes(meu_banco);
     liberarBDPartidas(minhas_partidas);

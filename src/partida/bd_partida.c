@@ -4,40 +4,52 @@
 #include "bd_partida.h"
 #include "partida.h"
 
-BDPartidas* criaBDPartidas() {
-    BDPartidas *bd = (BDPartidas*) malloc(sizeof(BDPartidas));
-    if (bd == NULL) return NULL;
+BDPartidas *criaBDPartidas()
+{
+    // Aloca o banco de partidas e inicia o contador sem registros.
+    BDPartidas *bd = (BDPartidas *)malloc(sizeof(BDPartidas));
+    if (bd == NULL)
+        return NULL;
 
     bd->qtd = 0;
     return bd;
 }
 
-void liberarBDPartidas(BDPartidas *bd) {
-    if (bd != NULL) {
-        free(bd); 
+void liberarBDPartidas(BDPartidas *bd)
+{
+    // Libera apenas a estrutura principal, pois as partidas ficam armazenadas no vetor interno.
+    if (bd != NULL)
+    {
+        free(bd);
     }
 }
 
-BDPartidas* carregaPartidas(const char *path) {
+BDPartidas *carregaPartidas(const char *path)
+{
+    // Abre o arquivo informado e prepara o banco antes de ler as linhas do CSV.
     FILE *a = fopen(path, "r");
-    if (a == NULL) {
+    if (a == NULL)
+    {
         return NULL;
     }
 
     BDPartidas *bd = criaBDPartidas();
-    if (bd == NULL) {
+    if (bd == NULL)
+    {
         fclose(a);
         return NULL;
     }
 
     char linha[200];
-    fgets(linha, sizeof(linha), a); //pula o cabeçalho do CSV
+    fgets(linha, sizeof(linha), a); // pula o cabeçalho do CSV
 
-    while (fgets(linha, sizeof(linha), a) != NULL) {
+    while (fgets(linha, sizeof(linha), a) != NULL)
+    {
 
         int tamanho = strlen(linha);
 
-         if (tamanho > 0 && linha[tamanho - 1] == '\n') {
+        if (tamanho > 0 && linha[tamanho - 1] == '\n')
+        {
             linha[tamanho - 1] = '\0';
         }
 
@@ -47,7 +59,9 @@ BDPartidas* carregaPartidas(const char *path) {
         char *g1_str = strtok(NULL, ",");
         char *g2_str = strtok(NULL, ",");
 
-        if (bd->qtd < 150) {
+        // Converte os campos separados por vírgula e armazena até o limite do vetor.
+        if (bd->qtd < 150)
+        {
             int id = atoi(id_str);
             int t1 = atoi(t1_str);
             int t2 = atoi(t2_str);
@@ -57,75 +71,107 @@ BDPartidas* carregaPartidas(const char *path) {
             bd->partidas[bd->qtd] = criaPartida(id, t1, t2, g1, g2);
             bd->qtd++;
         }
-        
     }
 
     fclose(a);
     return bd;
 }
 
-void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *nome_busca, int modo) {
-    if (bd_partidas == NULL || bd_times == NULL || nome_busca == NULL) return;
+void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *nome_busca, int modo)
+{
+    // Interrompe a consulta se algum banco ou termo de busca não estiver disponível.
+    if (bd_partidas == NULL || bd_times == NULL || nome_busca == NULL)
+        return;
     int encontrado = 0;
     int tam_busca = strlen(nome_busca);
 
-    for (int i = 0; i < bd_partidas->qtd; i++) {
+    for (int i = 0; i < bd_partidas->qtd; i++)
+    {
         Partida p = bd_partidas->partidas[i];
-        
-        //Usa a busca por ID para descobrir os nomes das equipes participantes
+
+        // Usa a busca por ID para descobrir os nomes das equipes participantes
         Time *t1 = buscaTimePorId(bd_times, p.id_time1);
         Time *t2 = buscaTimePorId(bd_times, p.id_time2);
 
-        if (t1 == NULL || t2 == NULL) continue;
+        if (t1 == NULL || t2 == NULL)
+            continue;
 
         int corresponde = 0;
 
         // Filtra os placares dependendo do modo de consulta selecionado pelo usuário
-        if (modo == 1 && strncmp(t1->nome, nome_busca, tam_busca) == 0) corresponde = 1;
-        else if (modo == 2 && strncmp(t2->nome, nome_busca, tam_busca) == 0) corresponde = 1;
-        else if (modo == 3 && (strncmp(t1->nome, nome_busca, tam_busca) == 0 || strncmp(t2->nome, nome_busca, tam_busca) == 0)) {
+        if (modo == 1 && strncmp(t1->nome, nome_busca, tam_busca) == 0)
+            corresponde = 1;
+        else if (modo == 2 && strncmp(t2->nome, nome_busca, tam_busca) == 0)
+            corresponde = 1;
+        else if (modo == 3 && (strncmp(t1->nome, nome_busca, tam_busca) == 0 || strncmp(t2->nome, nome_busca, tam_busca) == 0))
+        {
             corresponde = 1;
         }
 
+<<<<<<< HEAD
         if (corresponde) {
             if (!encontrado) {
                 printf("%-3s %-15s %-15s\n", "ID", "Time1", "Time2");
+=======
+        if (corresponde)
+        {
+            if (!encontrado)
+            {
+                // Imprime o cabeçalho apenas na primeira partida encontrada.
+                printf("%-3s %-15s        %-15s\n", "ID", "Time1", "Time2");
+>>>>>>> cbd7ed6a70574add4e9c6cc3a21d126dfc909a24
                 encontrado = 1;
             }
-            printf("%-3d %-15s %d x %d  %-15s\n", p.id, t1->nome, p.gols_time1, p.gols_time2, t2->nome);
+            if (!strcmp(t1->nome, "ESCorpiões"))
+            {
+                printf("%-3d %-15s  %d x %d  %-15s\n", p.id, t1->nome, p.gols_time1, p.gols_time2, t2->nome);
+            }
+            else
+            {
+                printf("%-3d %-15s %d x %d  %-15s\n", p.id, t1->nome, p.gols_time1, p.gols_time2, t2->nome);
+            }
         }
     }
-    if (!encontrado) {
+    if (!encontrado)
+    {
         printf("Nenhuma partida encontrada para a busca \"%s\".\n", nome_busca);
     }
 }
 
-void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times) {
-    if (bd_partidas == NULL || bd_times == NULL) return;
+void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times)
+{
+    // Usa todas as partidas carregadas para atualizar as estatísticas dos times.
+    if (bd_partidas == NULL || bd_times == NULL)
+        return;
 
-    //Distribui os pontos
-    for (int i = 0; i < bd_partidas->qtd; i++) {
+    // Distribui os pontos
+    for (int i = 0; i < bd_partidas->qtd; i++)
+    {
         Partida p = bd_partidas->partidas[i];
         Time *t1 = buscaTimePorId(bd_times, p.id_time1);
         Time *t2 = buscaTimePorId(bd_times, p.id_time2);
 
-        //Atualiza a quantidade de gols marcados e sofridos de ambos
+        // Atualiza a quantidade de gols marcados e sofridos de ambos
         t1->gols_marcados += p.gols_time1;
         t1->gols_sofridos += p.gols_time2;
         t2->gols_marcados += p.gols_time2;
         t2->gols_sofridos += p.gols_time1;
 
         // Avalia as condições para computar Vitórias, Empates e Derrotas
-        if (p.gols_time1 > p.gols_time2) {
+        if (p.gols_time1 > p.gols_time2)
+        {
             t1->vitorias++;
             t2->derrotas++;
-        } else if (p.gols_time1 < p.gols_time2) {
+        }
+        else if (p.gols_time1 < p.gols_time2)
+        {
             t2->vitorias++;
             t1->derrotas++;
-        } else {
+        }
+        else
+        {
             t1->empates++;
             t2->empates++;
         }
     }
 }
-

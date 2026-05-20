@@ -89,7 +89,7 @@ void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *n
 
         if (corresponde) {
             if (!encontrado) {
-                printf("%-3s %-15s       %-15s\n", "ID", "Time1", "Time2");
+                printf("%-3s %-15s %-15s\n", "ID", "Time1", "Time2");
                 encontrado = 1;
             }
             printf("%-3d %-15s %d x %d  %-15s\n", p.id, t1->nome, p.gols_time1, p.gols_time2, t2->nome);

@@ -1,8 +1,6 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "bd_time.h"
-
-void menu();
+void menu(BDTimes *bd, BDPartidas *bdp);
 
 #endif

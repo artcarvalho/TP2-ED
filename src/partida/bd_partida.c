@@ -73,8 +73,8 @@ void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *n
         Partida p = bd_partidas->partidas[i];
         
         //Usa a busca por ID para descobrir os nomes das equipes participantes
-        Time *t1 = buscarTimePorId(bd_times, p.id_time1);
-        Time *t2 = buscarTimePorId(bd_times, p.id_time2);
+        Time *t1 = buscaTimePorId(bd_times, p.id_time1);
+        Time *t2 = buscaTimePorId(bd_times, p.id_time2);
 
         if (t1 == NULL || t2 == NULL) continue;
 
@@ -106,25 +106,25 @@ void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times) {
     //Distribui os pontos
     for (int i = 0; i < bd_partidas->qtd; i++) {
         Partida p = bd_partidas->partidas[i];
-        Time *t1 = buscarTimePorId(bd_times, p.id_time1);
-        Time *t2 = buscarTimePorId(bd_times, p.id_time2);
+        Time *t1 = buscaTimePorId(bd_times, p.id_time1);
+        Time *t2 = buscaTimePorId(bd_times, p.id_time2);
 
         //Atualiza a quantidade de gols marcados e sofridos de ambos
-        t1->gm += p.gols_time1;
-        t1->gs += p.gols_time2;
-        t2->gm += p.gols_time2;
-        t2->gs += p.gols_time1;
+        t1->gols_marcados += p.gols_time1;
+        t1->gols_sofridos += p.gols_time2;
+        t2->gols_marcados += p.gols_time2;
+        t2->gols_sofridos += p.gols_time1;
 
         // Avalia as condições para computar Vitórias, Empates e Derrotas
         if (p.gols_time1 > p.gols_time2) {
-            t1->v++;
-            t2->d++;
+            t1->vitorias++;
+            t2->derrotas++;
         } else if (p.gols_time1 < p.gols_time2) {
-            t2->v++;
-            t1->d++;
+            t2->vitorias++;
+            t1->derrotas++;
         } else {
-            t1->e++;
-            t2->e++;
+            t1->empates++;
+            t2->empates++;
         }
     }
 }

@@ -72,22 +72,12 @@ void liberaBDTimes(BDTimes *bd) {
     free(bd); 
 }
 
-Time *buscaTimes(const char *busca, BDTimes *bd){
-    if(bd == NULL){
-        return NULL;
-    }
-
-    for(i=0; i < bd->qtd; i++){
-        bd->times[i]->
-    }
-}
-
 Time* buscaTimePorId(BDTimes *bd, int id) {
     if (bd == NULL || id < 0 || id >= 10) return NULL;
     return bd->times[id]; 
 }
 
-void consultarTime(BDTimes *bd, const char *prefixo) {
+void buscaTimes(BDTimes *bd, const char prefixo[50]) {
     if (bd == NULL || prefixo == NULL) return;
     int encontrado = 0;
     int tam_prefixo = strlen(prefixo);
@@ -98,11 +88,11 @@ void consultarTime(BDTimes *bd, const char *prefixo) {
             if (strncmp(bd->times[i]->nome, prefixo, tam_prefixo) == 0) {
                 if (!encontrado) {
                     
-                    printf("ID Time\t V E D GM GS S PG\n");
+                    printf("ID Time\t\t V E D GM GS S PG\n");
                     encontrado = 1;
                 }
                 Time *t = bd->times[i];
-                printf("%d %s\t %d %d %d %d %d %d %d\n",
+                printf("%d %s\t %4d %4d %4d %4d %4d %4d %4d\n",
                        t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
                        obterSaldoGols(t), obterPontosGanhos(t));
             }
@@ -117,13 +107,14 @@ void imprimirTabelaClassificacao(BDTimes *bd) {
     if (bd == NULL) return;
     printf("Imprimindo classificação...\n\n");
     
-    printf("ID Time\t V E D GM GS S PG\n");
+    printf("%-4s%-16s%-3s%-3s%-3s%-4s%-4s%-4s%s\n", 
+           "ID", "Time", "V", "E", "D", "GM", "GS", "S", "PG");
 
     for (int i = 0; i < 10; i++) {
         if (bd->times[i] != NULL) {
             Time *t = bd->times[i];
             
-            printf("%d %s\t %d %d %d %d %d %d %d\n",
+            printf("%-4d%-16s%-3d%-3d%-3d%-4d%-4d%-4d%d\n",
                    t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
                    obterSaldoGols(t), obterPontosGanhos(t));
         }

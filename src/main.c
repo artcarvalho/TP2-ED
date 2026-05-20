@@ -4,13 +4,19 @@
 #include "bd_partida.h"
 #include "menu.h"
 
-int main()
+int main(int argc, char *argv[])
 {
     //printf("=== Iniciando Testes do Campeonato de Futebol ===\n\n");
 
+    const char *arquivo_partidas = "data/partidas_vazio.csv";
+    if (argc > 1)
+    {
+        arquivo_partidas = argv[1];
+    }
+
     // Carrega os dados iniciais usados durante toda a execução do programa.
     BDTimes *meu_banco = carregaTimes("data/times.csv");
-    BDPartidas *minhas_partidas = carregaPartidas("data/partidas_vazio.csv");
+    BDPartidas *minhas_partidas = carregaPartidas(arquivo_partidas);
 
     if (meu_banco == NULL)
     {
@@ -20,7 +26,8 @@ int main()
 
     if (minhas_partidas == NULL)
     {
-        printf("Erro Nao foi possivel carregar o banco de partidas.\n");
+        printf("Erro Nao foi possivel carregar o banco de partidas: %s\n", arquivo_partidas);
+        liberaBDTimes(meu_banco);
         return 1;
     }
 

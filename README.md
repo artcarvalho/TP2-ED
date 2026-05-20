@@ -14,8 +14,6 @@ O projeto foi desenvolvido com foco em modularização, uso inteligente de memó
 
 * Critérios de Classificação: Vitórias (V), Empates (E), Derrotas (D), Gols Marcados (GM), Gols Sofridos (GS), Saldo de Gols (S = GM - GS) e Pontos Ganhos (PG = 3V + E).
 
----
-
 ## Estrutura do Projeto
 
 Separamos nossa implementação por módulos, dividindo source(src) de dados (data), e subdividindo o módulo src em time, partidas, e utils (responsável pelo display do menu) além de build para conter nosso arquivo compilado
@@ -50,7 +48,6 @@ Separamos nossa implementação por módulos, dividindo source(src) de dados (da
 ```
 Diagrama feito pela extensão do vscode Draw Folder Structure
 
----
 
 ## Organização dos Módulos e TADs
 
@@ -91,7 +88,7 @@ Diagrama feito pela extensão do vscode Draw Folder Structure
 * processarCampeonato: Função que varre o histórico de partidas salvas em memória, avalia as regras de vitória/empate/derrota e distribui de forma acumulada os gols e resultados diretamente nas instâncias correspondentes do BDTimes.
 
 * Funcionalidade: consultarPartidas realiza a listagem cruzada de placares filtrando por prefixos em modo mandante, visitante ou ambos.
----
+
 
 ## Como Compilar e Executar
 
@@ -109,7 +106,16 @@ sudo apt install build-essential
 Para compilar o projeto completo gerando o executável automatizado
 
 ```bash
-make
+make run
+```
+Obs: por padrão irá popular as partidas com o arquivo partidas_vazio.csv
+
+Para compilar com outro arquivo csv, use o parametro PARTIDA, substituindo {arquivo} pelo nome do arquivo que deseja utilizar para popular o campo de partidas:
+
+Opções: ```partidas_completo.csv```, ```partidas_parcial.csv```, ```partidas_vazio.csv```
+
+```bash
+make run PARTIDAS=data/{arquivo}.csv
 ```
 
 Obs: o arquivo compilado será gerado na subpasta /build
@@ -122,8 +128,6 @@ Obs: o arquivo compilado será gerado na subpasta /build
 * Consumo Previsível: O banco de partidas abdica de ponteiros duplos e alocação dinâmica, resolvendo a leitura de diferentes volumes de arquivos (0, 45 ou 100 linhas) puramente pelo controle do contador interno qtd sobre o vetor estático.
 
 * Tratamento de Strings: Strings vindas do arquivo CSV passam por limpeza via strcspn para expurgar caracteres ocultos de quebra de linha (\n) capturados pelo fgets antes de passarem pela tokenização do strtok.
-
----
 
 ## Criadores
 

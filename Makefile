@@ -10,10 +10,10 @@ SRC = src/main.c \
 
 .PHONY: all run clean
 
-all: run
+all: $(TARGET)
 
 run: $(TARGET)
-	./$(TARGET)
+	./$(TARGET) $(PARTIDAS)
 
 $(TARGET): $(SRC)
 	mkdir -p build

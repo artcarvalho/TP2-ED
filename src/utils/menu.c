@@ -9,10 +9,12 @@ void menu(BDTimes *bd, BDPartidas *bdp)
     char busca[50];
     int n;
 
+    // Mantém o menu ativo até o usuário escolher a opção de saída.
     do{
         printf("1 - Consultar time\n2 - Consultar partidas\n3 - Atualizar partida\n4 - Remover partida\n5 - Inserir partida\n6 - Imprimir tabela de classificação\nQ - Sair\n\nEscolha uma opção:");
         scanf(" %c", &escolha);
 
+        // Direciona cada opção para a consulta ou ação correspondente.
         switch (escolha){
         case '1':
             system("clear");

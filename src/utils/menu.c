@@ -11,6 +11,7 @@ void menu(BDTimes *bd, BDPartidas *bdp)
 
     // Mantém o menu ativo até o usuário escolher a opção de saída.
     do{
+        printf("\n=========Sistema de Gerenciamento de Partidas=========\n\n");
         printf("1 - Consultar time\n2 - Consultar partidas\n3 - Atualizar partida\n4 - Remover partida\n5 - Inserir partida\n6 - Imprimir tabela de classificação\nQ - Sair\n\nEscolha uma opção:");
         scanf(" %c", &escolha);
 

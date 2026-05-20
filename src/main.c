@@ -10,7 +10,7 @@ int main()
 
     // Carrega os dados iniciais usados durante toda a execução do programa.
     BDTimes *meu_banco = carregaTimes("data/times.csv");
-    BDPartidas *minhas_partidas = carregaPartidas("data/partidas_completo.csv");
+    BDPartidas *minhas_partidas = carregaPartidas("data/partidas_vazio.csv");
 
     if (meu_banco == NULL)
     {

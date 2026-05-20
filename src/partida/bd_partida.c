@@ -108,18 +108,9 @@ void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *n
             corresponde = 1;
         }
 
-<<<<<<< HEAD
         if (corresponde) {
             if (!encontrado) {
                 printf("%-3s %-15s %-15s\n", "ID", "Time1", "Time2");
-=======
-        if (corresponde)
-        {
-            if (!encontrado)
-            {
-                // Imprime o cabeçalho apenas na primeira partida encontrada.
-                printf("%-3s %-15s        %-15s\n", "ID", "Time1", "Time2");
->>>>>>> cbd7ed6a70574add4e9c6cc3a21d126dfc909a24
                 encontrado = 1;
             }
             if (!strcmp(t1->nome, "ESCorpiões"))

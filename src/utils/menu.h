@@ -1,7 +1,8 @@
 #ifndef MENU_H
 #define MENU_H
 
-void imprimir_classificacao();
+#include "bd_time.h"
 
+void menu();
 
 #endif

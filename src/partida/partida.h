@@ -3,7 +3,8 @@
 
 #include "time.h"
 
-typedef struct {
+typedef struct
+{
     int id;
     int id_time1;
     int id_time2;

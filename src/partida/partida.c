@@ -1,5 +1,15 @@
-#include "partida_internal.h"
+#include "partida.h"
 #include <stdlib.h>
+
+struct Partida
+{
+    int id;
+    int id_time1;
+    int id_time2;
+    int gols_time1;
+    int gols_time2;
+    Partida *prox;
+};
 
 Partida *criaPartida(int id, int idt1, int idt2, int gt1, int gt2)
 {

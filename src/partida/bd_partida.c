@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "partida_internal.h"
-#include "time_internal.h"
 #include "bd_partida.h"
 
 struct BDPartidas

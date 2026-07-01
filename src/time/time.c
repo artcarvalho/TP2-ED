@@ -1,6 +1,21 @@
-#include "time_internal.h"
+#include "time.h"
 #include <stdlib.h>
 #include <string.h>
+
+struct Time
+{
+    int id;
+    char *nome;
+
+    int vitorias;
+    int empates;
+    int derrotas;
+
+    int gols_marcados;
+    int gols_sofridos;
+
+    Time *prox;
+};
 
 Time *criaTime(int id, const char *nome)
 {

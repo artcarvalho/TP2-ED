@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "time_internal.h"
 #include "bd_time.h"
 
 struct BDTimes

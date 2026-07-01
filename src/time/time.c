@@ -14,6 +14,7 @@ struct Time
     int gols_marcados;
     int gols_sofridos;
 
+    // Ponteiro usado para encadear os times na lista.
     Time *prox;
 };
 
@@ -28,6 +29,7 @@ Time *criaTime(int id, const char *nome)
     }
 
     t->id = id;
+    // Copia o nome para que o Time tenha sua propria memoria.
     t->nome = (char *)malloc(strlen(nome) + 1);
 
     if (t->nome == NULL)

@@ -72,6 +72,7 @@ BDPartidas *carregaPartidas(const char *path)
     }
 
     char linha[256];
+    // Ignora o cabecalho do CSV.
     fgets(linha, sizeof(linha), a);
 
     while (fgets(linha, sizeof(linha), a) != NULL)
@@ -137,6 +138,7 @@ void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *n
         Time *t1 = buscaTimePorId(bd_times, partidaGetTime1(atual));
         Time *t2 = buscaTimePorId(bd_times, partidaGetTime2(atual));
 
+        // Se algum time nao existir, a partida nao pode ser exibida corretamente.
         if (t1 == NULL || t2 == NULL)
             continue;
 
@@ -190,6 +192,7 @@ int inserirPartida(BDPartidas *bd_partidas, BDTimes *bd_times, int id_time1, int
     if (buscaTimePorId(bd_times, id_time1) == NULL || buscaTimePorId(bd_times, id_time2) == NULL)
         return 0;
 
+    // O novo ID fica sempre depois do maior ID ja cadastrado.
     Partida *nova = criaPartida(maiorIdPartidas(bd_partidas) + 1, id_time1, id_time2, gols_time1, gols_time2);
     if (nova == NULL)
         return 0;
@@ -242,6 +245,7 @@ void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times)
     if (bd_partidas == NULL || bd_times == NULL)
         return;
 
+    // Recalcula tudo do zero para evitar estatisticas duplicadas.
     reiniciarEstatisticasTimes(bd_times);
 
     for (Partida *p = bd_partidas->inicio; p != NULL; p = partidaGetProxima(p))

@@ -9,6 +9,7 @@ int main(int argc, char *argv[])
     //printf("=== Iniciando Testes do Campeonato de Futebol ===\n\n");
 
     const char *arquivo_partidas = "data/partidas_completo.csv";
+    // Permite testar o programa com outro arquivo de partidas.
     if (argc > 1)
     {
         arquivo_partidas = argv[1];

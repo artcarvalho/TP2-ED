@@ -44,6 +44,7 @@ static int lerCampoOpcional(const char *prompt, int atual, int *valor)
 
     if (strcmp(buffer, "-") == 0)
     {
+        // O hifen indica que o valor antigo deve ser mantido.
         *valor = atual;
         return 1;
     }
@@ -65,6 +66,7 @@ static const char *nomeOuHifen(Time *t)
 
 static void recalcularEClassificar(BDPartidas *bdp, BDTimes *bd)
 {
+    // Sempre salva os CSVs depois que uma partida muda.
     processaCampeonato(bdp, bd);
     salvarBDPartidasCSV(bdp, ARQ_PARTIDAS_BD);
     salvarClassificacaoCSV(bd, ARQ_CLASSIFICACAO_BD);

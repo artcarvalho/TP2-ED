@@ -8,6 +8,7 @@ struct Partida
     int id_time2;
     int gols_time1;
     int gols_time2;
+    // Ponteiro usado para encadear as partidas na lista.
     Partida *prox;
 };
 
@@ -67,6 +68,7 @@ void partidaSetGols(Partida *p, int gt1, int gt2)
     if (p == NULL)
         return;
 
+    // Atualiza os dois placares juntos para manter a partida consistente.
     p->gols_time1 = gt1;
     p->gols_time2 = gt2;
 }

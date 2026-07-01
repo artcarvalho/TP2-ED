@@ -31,6 +31,7 @@ static void inserirTimeOrdenado(BDTimes *bd, Time *novo)
         return;
     }
 
+    // Mantem a lista de times em ordem crescente de ID.
     if (bd->inicio == NULL || timeGetId(novo) < timeGetId(bd->inicio))
     {
         timeSetProximo(novo, bd->inicio);
@@ -68,6 +69,7 @@ BDTimes *carregaTimes(const char *path)
 
     char line[256];
 
+    // Ignora o cabecalho do CSV.
     fgets(line, sizeof(line), a);
 
     while (fgets(line, sizeof(line), a) != NULL)
@@ -174,6 +176,7 @@ static int compararTimes(const void *a, const void *b)
     Time *ta = *(Time **)a;
     Time *tb = *(Time **)b;
 
+    // Criterios de desempate da classificacao.
     int pa = obterPontosGanhos(ta);
     int pb = obterPontosGanhos(tb);
     if (pa != pb)
@@ -206,6 +209,7 @@ void imprimirTabelaClassificacao(BDTimes *bd)
         ordenados[total++] = atual;
     }
 
+    // Ordena apenas os ponteiros, sem mudar a lista original.
     qsort(ordenados, total, sizeof(Time *), compararTimes);
 
     printf("Imprimindo classificacao...\n\n");

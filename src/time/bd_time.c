@@ -1,12 +1,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "time.h"
+#include "time_internal.h"
 #include "bd_time.h"
+
+struct BDTimes
+{
+    Time *inicio;
+    int qtd;
+};
 
 BDTimes *criaBDTimes()
 {
-    // Aloca o banco de times e deixa todas as posições vazias no início.
     BDTimes *bd = (BDTimes *)malloc(sizeof(BDTimes));
 
     if (bd == NULL)
@@ -14,19 +19,40 @@ BDTimes *criaBDTimes()
         return NULL;
     }
 
-    for (int i = 0; i < 10; i++)
-    {
-        bd->times[i] = NULL;
-    }
-
+    bd->inicio = NULL;
     bd->qtd = 0;
 
     return bd;
 }
 
+static void inserirTimeOrdenado(BDTimes *bd, Time *novo)
+{
+    if (bd == NULL || novo == NULL)
+    {
+        return;
+    }
+
+    if (bd->inicio == NULL || timeGetId(novo) < timeGetId(bd->inicio))
+    {
+        timeSetProximo(novo, bd->inicio);
+        bd->inicio = novo;
+        bd->qtd++;
+        return;
+    }
+
+    Time *atual = bd->inicio;
+    while (timeGetProximo(atual) != NULL && timeGetId(timeGetProximo(atual)) < timeGetId(novo))
+    {
+        atual = timeGetProximo(atual);
+    }
+
+    timeSetProximo(novo, timeGetProximo(atual));
+    timeSetProximo(atual, novo);
+    bd->qtd++;
+}
+
 BDTimes *carregaTimes(const char *path)
 {
-    // Abre o CSV de times e cria o banco que receberá os registros lidos.
     FILE *a = fopen(path, "r");
 
     if (a == NULL)
@@ -41,29 +67,31 @@ BDTimes *carregaTimes(const char *path)
         return NULL;
     }
 
-    char line[200];
+    char line[256];
 
-    fgets(line, sizeof(line), a); // pulando o header do csv
+    fgets(line, sizeof(line), a);
 
-    // fazendo leitura linha a linha dos dados dos times e criando o TAD time com os dados.
-    while (fgets(line, 200, a) != NULL)
+    while (fgets(line, sizeof(line), a) != NULL)
     {
+        line[strcspn(line, "\r\n")] = '\0';
 
-        int tamanho = strlen(line);
-
-        if (tamanho > 0 && line[tamanho - 1] == '\n')
-        {
-            line[tamanho - 1] = '\0';
-        }
-
-        int id = atoi(strtok(line, ","));
-
+        char *id_str = strtok(line, ",");
         char *nome = strtok(NULL, ",");
 
-        Time *t = criaTime(id, nome);
+        if (id_str == NULL || nome == NULL)
+        {
+            continue;
+        }
 
-        bd->times[id] = t;
-        bd->qtd++;
+        Time *t = criaTime(atoi(id_str), nome);
+        if (t == NULL)
+        {
+            liberaBDTimes(bd);
+            fclose(a);
+            return NULL;
+        }
+
+        inserirTimeOrdenado(bd, t);
     }
 
     fclose(a);
@@ -72,101 +100,155 @@ BDTimes *carregaTimes(const char *path)
 
 void liberaBDTimes(BDTimes *bd)
 {
-    // Libera cada time alocado antes de liberar o banco principal.
     if (bd == NULL)
         return;
 
-    for (int i = 0; i < 10; i++)
+    Time *atual = bd->inicio;
+    while (atual != NULL)
     {
-        if (bd->times[i] != NULL)
-        {
-            liberaTime(bd->times[i]);
-        }
+        Time *proximo = timeGetProximo(atual);
+        liberaTime(atual);
+        atual = proximo;
     }
     free(bd);
 }
 
 Time *buscaTimePorId(BDTimes *bd, int id)
 {
-    // Valida o índice antes de acessar o vetor de ponteiros.
-    if (bd == NULL || id < 0 || id >= 10)
+    if (bd == NULL || id < 0)
         return NULL;
-    return bd->times[id];
+
+    for (Time *atual = bd->inicio; atual != NULL; atual = timeGetProximo(atual))
+    {
+        if (timeGetId(atual) == id)
+        {
+            return atual;
+        }
+    }
+
+    return NULL;
+}
+
+void reiniciarEstatisticasTimes(BDTimes *bd)
+{
+    if (bd == NULL)
+        return;
+
+    for (Time *atual = bd->inicio; atual != NULL; atual = timeGetProximo(atual))
+    {
+        timeZerarEstatisticas(atual);
+    }
 }
 
 void buscaTimes(BDTimes *bd, const char prefixo[50])
 {
-    // Procura times cujo nome comece com o prefixo informado.
     if (bd == NULL || prefixo == NULL)
         return;
-    int encontrado = 0;
+
     int tam_prefixo = strlen(prefixo);
+    int encontrado = 0;
 
-    for (int i = 0; i < 10; i++)
+    for (Time *atual = bd->inicio; atual != NULL; atual = timeGetProximo(atual))
     {
-        if (bd->times[i] != NULL)
+        if (strncmp(timeGetNome(atual), prefixo, tam_prefixo) == 0)
         {
-            // Verifica se o nome do time inicia com o prefixo digitado
-            if (strncmp(bd->times[i]->nome, prefixo, tam_prefixo) == 0)
+            if (!encontrado)
             {
-                if (!encontrado)
-                {
-
-                    printf("%-4s%-16s%-3s%-3s%-3s%-4s%-4s%-4s%s\n",
-                           "ID", "Time", "V", "E", "D", "GM", "GS", "S", "PG");
-                    encontrado = 1;
-                }
-                Time *t = bd->times[i];
-                if (!strcmp("ESCorpiões", t->nome))
-                {
-                    printf("%-4d%-16s %-3d%-3d%-3d%-4d%-4d%-4d%d\n",
-                           t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
-                           obterSaldoGols(t), obterPontosGanhos(t));
-                }
-                else
-                {
-
-                    printf("%-4d%-16s%-3d%-3d%-3d%-4d%-4d%-4d%d\n",
-                           t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
-                           obterSaldoGols(t), obterPontosGanhos(t));
-                }
+                printf("%-4s %-16s %-3s %-3s %-3s %-4s %-4s %-4s %s\n",
+                       "ID", "Time", "V", "E", "D", "GM", "GS", "S", "PG");
             }
+            printf("%-4d %-16s %-3d %-3d %-3d %-4d %-4d %-4d %d\n",
+                   timeGetId(atual), timeGetNome(atual), timeGetVitorias(atual), timeGetEmpates(atual), timeGetDerrotas(atual),
+                   timeGetGolsMarcados(atual), timeGetGolsSofridos(atual), obterSaldoGols(atual), obterPontosGanhos(atual));
+            encontrado = 1;
         }
     }
+
     if (!encontrado)
     {
         printf("Nenhum time encontrado com o prefixo \"%s\".\n", prefixo);
     }
 }
 
+static int compararTimes(const void *a, const void *b)
+{
+    Time *ta = *(Time **)a;
+    Time *tb = *(Time **)b;
+
+    int pa = obterPontosGanhos(ta);
+    int pb = obterPontosGanhos(tb);
+    if (pa != pb)
+        return pb - pa;
+
+    if (timeGetVitorias(ta) != timeGetVitorias(tb))
+        return timeGetVitorias(tb) - timeGetVitorias(ta);
+
+    int sa = obterSaldoGols(ta);
+    int sb = obterSaldoGols(tb);
+    if (sa != sb)
+        return sb - sa;
+
+    if (timeGetGolsMarcados(ta) != timeGetGolsMarcados(tb))
+        return timeGetGolsMarcados(tb) - timeGetGolsMarcados(ta);
+
+    return timeGetId(ta) - timeGetId(tb);
+}
+
 void imprimirTabelaClassificacao(BDTimes *bd)
 {
-    // Percorre os times cadastrados e imprime os dados calculados da classificação.
     if (bd == NULL)
         return;
-    printf("Imprimindo classificação...\n\n");
 
-    printf("%-4s%-16s%-3s%-3s%-3s%-4s%-4s%-4s%s\n",
+    Time *ordenados[10];
+    int total = 0;
+
+    for (Time *atual = bd->inicio; atual != NULL && total < 10; atual = timeGetProximo(atual))
+    {
+        ordenados[total++] = atual;
+    }
+
+    qsort(ordenados, total, sizeof(Time *), compararTimes);
+
+    printf("Imprimindo classificacao...\n\n");
+    printf("%-4s %-16s %-3s %-3s %-3s %-4s %-4s %-4s %s\n",
            "ID", "Time", "V", "E", "D", "GM", "GS", "S", "PG");
 
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < total; i++)
     {
-        if (bd->times[i] != NULL)
-        {
-            Time *t = bd->times[i];
-            if (!strcmp("ESCorpiões", t->nome))
-            {
-                printf("%-4d%-16s %-3d%-3d%-3d%-4d%-4d%-4d%d\n",
-                       t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
-                       obterSaldoGols(t), obterPontosGanhos(t));
-            }
-            else
-            {
-
-                printf("%-4d%-16s%-3d%-3d%-3d%-4d%-4d%-4d%d\n",
-                       t->id, t->nome, t->vitorias, t->empates, t->derrotas, t->gols_marcados, t->gols_sofridos,
-                       obterSaldoGols(t), obterPontosGanhos(t));
-            }
-        }
+        Time *t = ordenados[i];
+        printf("%-4d %-16s %-3d %-3d %-3d %-4d %-4d %-4d %d\n",
+               timeGetId(t), timeGetNome(t), timeGetVitorias(t), timeGetEmpates(t), timeGetDerrotas(t),
+               timeGetGolsMarcados(t), timeGetGolsSofridos(t), obterSaldoGols(t), obterPontosGanhos(t));
     }
+}
+
+void salvarClassificacaoCSV(BDTimes *bd, const char *path)
+{
+    if (bd == NULL || path == NULL)
+        return;
+
+    FILE *f = fopen(path, "w");
+    if (f == NULL)
+        return;
+
+    Time *ordenados[10];
+    int total = 0;
+
+    for (Time *atual = bd->inicio; atual != NULL && total < 10; atual = timeGetProximo(atual))
+    {
+        ordenados[total++] = atual;
+    }
+
+    qsort(ordenados, total, sizeof(Time *), compararTimes);
+
+    fprintf(f, "ID,Time,V,E,D,GM,GS,S,PG\n");
+    for (int i = 0; i < total; i++)
+    {
+        Time *t = ordenados[i];
+        fprintf(f, "%d,%s,%d,%d,%d,%d,%d,%d,%d\n",
+                timeGetId(t), timeGetNome(t), timeGetVitorias(t), timeGetEmpates(t), timeGetDerrotas(t),
+                timeGetGolsMarcados(t), timeGetGolsSofridos(t), obterSaldoGols(t), obterPontosGanhos(t));
+    }
+
+    fclose(f);
 }

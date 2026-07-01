@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 {
     //printf("=== Iniciando Testes do Campeonato de Futebol ===\n\n");
 
-    const char *arquivo_partidas = "data/partidas_vazio.csv";
+    const char *arquivo_partidas = "data/partidas_completo.csv";
     if (argc > 1)
     {
         arquivo_partidas = argv[1];
@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
 
     // Calcula a classificação antes de exibir o menu principal.
     processaCampeonato(minhas_partidas, meu_banco);
+    salvarBDPartidasCSV(minhas_partidas, "data/bd_partidas.csv");
+    salvarClassificacaoCSV(meu_banco, "data/bd_classificacao.csv");
     menu(meu_banco, minhas_partidas);
 
     // Libera os bancos alocados antes de encerrar o programa.

@@ -4,54 +4,37 @@
 #include "partida.h"
 #include "bd_time.h"
 
-typedef struct
-{
-    Partida partidas[150];
-    int qtd;
-} BDPartidas;
+// Definição do tipo BDPartidas
+typedef struct BDPartidas BDPartidas;
 
-/*
- * Cria um banco de partidas vazio.
- * Retorna um ponteiro para BDPartidas alocado dinamicamente, ou NULL em caso de erro.
- */
+// Cria um banco de partidas vazio.
 BDPartidas *criaBDPartidas();
 
-/*
- * Libera a memoria usada pelo banco de partidas.
- * bd: ponteiro para o banco que sera liberado.
- */
+// Libera a memoria usada pelo banco de partidas.
 void liberarBDPartidas(BDPartidas *bd);
 
-/*
- * Carrega as partidas de um arquivo CSV.
- * path: caminho do arquivo que contem os dados das partidas.
- * Retorna um ponteiro para o banco preenchido, ou NULL se nao conseguir carregar.
- */
+// Carrega as partidas de um arquivo CSV.
 BDPartidas *carregaPartidas(const char *path);
 
-/*
- * Busca partidas usando um prefixo de nome de time e um tipo de busca.
- * bdp: banco de partidas consultado.
- * bdt: banco de times usado para relacionar IDs aos nomes.
- * prefixo: inicio do nome usado como filtro.
- * tipoBusca: define se a busca considera mandante, visitante ou ambos.
- */
-void buscaPartidas(BDPartidas *bdp, BDTimes *bdt, const char *prefixo, int tipoBusca);
+// Busca uma partida pelo seu identificador.
+Partida *buscaPartidaPorId(BDPartidas *bd, int id);
 
-/*
- * Consulta e imprime partidas que correspondem ao nome ou prefixo informado.
- * bd_partidas: banco com as partidas carregadas.
- * bd_times: banco com os times carregados.
- * nome_busca: nome ou prefixo usado para filtrar os times.
- * modo: define se a busca sera por time mandante, visitante ou qualquer um dos dois.
- */
+// Consulta e imprime partidas que correspondem ao nome ou prefixo informado.
 void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *nome_busca, int modo);
 
-/*
- * Processa todas as partidas e atualiza a classificacao dos times.
- * bd_partidas: banco com os placares das partidas.
- * bd_times: banco de times que recebera vitorias, empates, derrotas e gols.
- */
+// Insere uma nova partida no fim da lista, validando os times informados.
+int inserirPartida(BDPartidas *bd_partidas, BDTimes *bd_times, int id_time1, int id_time2, int gols_time1, int gols_time2);
+
+// Atualiza o placar de uma partida existente.
+int atualizarPartida(BDPartidas *bd_partidas, int id_partida, int gols_time1, int gols_time2);
+
+// Remove uma partida existente da lista.
+int removerPartida(BDPartidas *bd_partidas, int id_partida);
+
+// Processa todas as partidas e atualiza a classificacao dos times.
 void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times);
+
+// Salva o banco atual de partidas em um arquivo CSV.
+void salvarBDPartidasCSV(BDPartidas *bd_partidas, const char *path);
 
 #endif

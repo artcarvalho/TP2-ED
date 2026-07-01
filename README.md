@@ -1,131 +1,103 @@
-# Trabalho 1 - Campeonato de Futebol
+# Trabalho 2 - Campeonato Computacional de Futebol
 
-Este projeto consiste na implementação de um sistema em linguagem C para gerenciamento e consulta de dados de um campeonato de futebol. O sistema é alimentado por arquivos persistidos em formato CSV (times e partidas), processa os resultados em memória e disponibiliza consultas detalhadas e tabelas de classificação para o usuário.
+Este projeto implementa, em C, um sistema de gerenciamento de um campeonato de futebol com 10 clubes fixos. O programa carrega os dados de times e partidas a partir de CSV, mantém tudo em memória com listas encadeadas e permite consultar, inserir, atualizar, remover e listar os registros.
 
-O projeto foi desenvolvido com foco em modularização, uso inteligente de memória (combinando alocação dinâmica e estática) e integridade de dados por meio de encapsulamento em Tipos Abstratos de Dados (TADs).
+## Estrutura
 
-## Regras do Campeonato
-
-* Composição: O campeonato possui exatamente 10 clubes fixos (indexados de 0 a 9).
-
-* Formato: Disputado em turno único de pontos corridos (todos contra todos, sem repetição).
-
-* Pontuação: Vitória confere 3 pontos, empate confere 1 ponto e derrota 0 pontos.
-
-* Critérios de Classificação: Vitórias (V), Empates (E), Derrotas (D), Gols Marcados (GM), Gols Sofridos (GS), Saldo de Gols (S = GM - GS) e Pontos Ganhos (PG = 3V + E).
-
-## Estrutura do Projeto
-
-Separamos nossa implementação por módulos, dividindo source(src) de dados (data), e subdividindo o módulo src em time, partidas, e utils (responsável pelo display do menu) além de build para conter nosso arquivo compilado
-
+```text
+.
+├── data
+│   ├── times.csv
+│   ├── partidas_vazio.csv
+│   ├── partidas_parcial.csv
+│   ├── partidas_completo.csv
+│   ├── bd_partidas.csv
+│   └── bd_classificacao.csv
+├── src
+│   ├── main.c
+│   ├── time
+│   │   ├── time.c
+│   │   ├── time.h
+│   │   ├── bd_time.c
+│   │   └── bd_time.h
+│   ├── partida
+│   │   ├── partida.c
+│   │   ├── partida.h
+│   │   ├── bd_partida.c
+│   │   └── bd_partida.h
+│   └── utils
+│       ├── menu.c
+│       └── menu.h
+├── Makefile
+└── README.md
 ```
-    └── 📁build
-        ├── programa
-    └── 📁data
-        ├── partidas_completo.csv
-        ├── partidas_parcial.csv
-        ├── partidas_vazio.csv
-        ├── times.csv
-    └── 📁src
-        └── 📁partida
-            ├── bd_partida.c
-            ├── bd_partida.h
-            ├── partida.c
-            ├── partida.h
-        └── 📁time
-            ├── bd_time.c
-            ├── bd_time.h
-            ├── time.c
-            ├── time.h
-        └── 📁utils
-            ├── menu.c
-            ├── menu.h
-        ├── main.c
-    ├── Makefile
-    └── README.md
-```
-Diagrama feito pela extensão do vscode Draw Folder Structure
 
-
-## Organização dos Módulos e TADs
+## TADs Principais
 
 ### Time
-### TAD Time
-* time.h e time.c: Definem a estrutura de dados(TAD) Time que encapsula o ID, nome e as variáveis acumuladoras de desempenho (Vitórias, Empates, Derrotas, Gols Marcados e Gols).
+Modela um clube com ID, nome e estatisticas acumuladas: vitórias, empates, derrotas, gols marcados e gols sofridos. Os pontos ganhos e o saldo de gols são calculados sob demanda.
 
-* Decisão de Implementação: Cumprindo as competências do projeto, cada time é criado e alocado dinamicamente na memória via malloc.
-
-* Cálculos: Para garantir o correto encapsulamento dos dados, os Pontos Ganhos (PG) e o Saldo de Gols (S) não são armazenados em variáveis; eles são calculados dinamicamente por funções sempre que solicitados (obterPontosGanhos e obterSaldoGols).
-
-### TAD BDTimes
-* bd_time.h e bd_time.c: Controla a coleção dos 10 clubes participantes.
-
-* Estrutura: Armazena os times em um vetor fixo de 10 ponteiros (Time *times[10]), onde o ID de cada time mapeia diretamente o seu índice de armazenamento.
-
-* Funcionalidades: 
-  * carregaTimes: Abre o arquivo CSV, ignora a linha de cabeçalho e popula o banco de dados.
-
-  * consultarTime: Realiza a busca por prefixo utilizando strncmp.
-
-  * imprimirTabelaClassificacao: Lista a classificação atualizada estruturada por IDs.
-
+### BDTimes
+Gerencia a lista encadeada de times. Carrega `data/times.csv`, busca por ID, busca por prefixo, reinicia estatísticas e imprime ou exporta a classificação ordenada.
 
 ### Partida
-### TAD Partida
-* partida.h e partida.c: Modela um único confronto do campeonato, registrando o ID do jogo, os IDs das equipes (mandante/visitante) e os gols de cada lado.
+Representa um jogo único do campeonato com ID, IDs dos times envolvidos e placar.
 
-* Decisão de Implementação: Como as partidas são armazenadas em um vetor puramente estático, a função criaPartida gera o registro sem alocações dinâmicas individuais.
+### BDPartidas
+Gerencia a lista encadeada de partidas. Carrega o CSV, consulta por prefixo e modo de busca, insere, atualiza e remove partidas, além de reprocessar o campeonato quando os dados mudam.
 
-### TAD BDPartidas
-* bd_partida.h e bd_partida.c: Gerencia o histórico de jogos carregados.
+## Regras Implementadas
 
-* Estrutura: Baseado na restrição do enunciado de usar um vetor estático de registros para previsibilidade de memória, utiliza um array de structs dimensionado estaticamente com um teto seguro de 200 posições para suportar quaisquer cenários.
+O sistema trabalha com os 10 clubes definidos no enunciado:
+`JAVAlis`, `ESCorpiões`, `SemCTRL`, `GOrilas`, `PYthons`, `SeQueLas`, `NETunos`, `LOOPardos`, `RUSTicos` e `REACTivos`.
 
-* processarCampeonato: Função que varre o histórico de partidas salvas em memória, avalia as regras de vitória/empate/derrota e distribui de forma acumulada os gols e resultados diretamente nas instâncias correspondentes do BDTimes.
+A classificação é ordenada por:
+1. Pontos ganhos
+2. Vitórias
+3. Saldo de gols
+4. Gols marcados
+5. ID
 
-* Funcionalidade: consultarPartidas realiza a listagem cruzada de placares filtrando por prefixos em modo mandante, visitante ou ambos.
-
-
-## Como Compilar e Executar
-
-Caso não tenha o compilador GCC, atualize os pacotes de sua distribuição
-
-```bash
- sudo apt update
-```
-
-Instale o pacote
-```bash
-sudo apt install build-essential
-```
-
-Para compilar o projeto completo gerando o executável automatizado
+## Como Compilar
 
 ```bash
-make run
+make
 ```
-Obs: por padrão irá popular as partidas com o arquivo partidas_vazio.csv
 
-Para compilar com outro arquivo csv, use o parametro PARTIDA, substituindo {arquivo} pelo nome do arquivo que deseja utilizar para popular o campo de partidas:
+O executável é gerado em `build/programa`.
 
-Opções: ```partidas_completo.csv```, ```partidas_parcial.csv```, ```partidas_vazio.csv```
+## Como Executar
+
+Por padrão o programa carrega `data/partidas_vazio.csv`:
 
 ```bash
-make run PARTIDAS=data/{arquivo}.csv
+./build/programa
 ```
 
-Obs: o arquivo compilado será gerado na subpasta /build
+Para usar outro arquivo de partidas:
 
+```bash
+./build/programa data/partidas_parcial.csv
+```
+
+## Menu
+
+1. Consultar time
+2. Consultar partidas
+3. Atualizar partida
+4. Remover partida
+5. Inserir partida
+6. Imprimir tabela de classificacao
+Q. Sair
 
 ## Decisões de Implementação
 
-* Prevenção de Memory Leaks: O gerenciador de times implementa desalocação completa através do ```liberarBDTimes```, garantindo que cada ponteiro criado dinamicamente por malloc seja liberado individualmente via ```free``` antes de limpar a estrutura pai.
+- Times e partidas foram migrados para listas encadeadas, como pede a Parte II.
+- A classificação é recalculada a partir do histórico de partidas após cada alteração.
+- A ordenação da tabela foi feita em memória, sem criar estruturas excessivas.
+- O projeto exporta também `data/bd_partidas.csv` e `data/bd_classificacao.csv` como artefatos gerados da base atual.
 
-* Consumo Previsível: O banco de partidas abdica de ponteiros duplos e alocação dinâmica, resolvendo a leitura de diferentes volumes de arquivos (0, 45 ou 100 linhas) puramente pelo controle do contador interno qtd sobre o vetor estático.
+## Autores
 
-* Tratamento de Strings: Strings vindas do arquivo CSV passam por limpeza via strcspn para expurgar caracteres ocultos de quebra de linha (\n) capturados pelo fgets antes de passarem pela tokenização do strtok.
-
-## Criadores
-
-* Artur Pedro Carvalho Silva
-* André Ulhôa Borges
+- Artur Pedro Carvalho Silva
+- André Ulhôa Borges

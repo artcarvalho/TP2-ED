@@ -3,57 +3,31 @@
 
 #include "time.h"
 
-typedef struct
-{
-    Time *times[10];
-    int qtd;
-} BDTimes;
+// Definição do tipo BDTimes
+typedef struct BDTimes BDTimes;
 
-/*
- * Cria um banco de times vazio.
- * Retorna um ponteiro para BDTimes alocado dinamicamente, ou NULL em caso de erro.
- */
+// Cria um banco de times vazio.
 BDTimes *criaBDTimes();
 
-/*
- * Carrega os times de um arquivo CSV.
- * path: caminho do arquivo que contem os dados dos times.
- * Retorna um ponteiro para o banco preenchido, ou NULL se nao conseguir carregar.
- */
-BDTimes *carregaTimes(const char *path);
-
-/*
- * Libera o banco de times e todos os times armazenados nele.
- * bd: ponteiro para o banco que sera liberado.
- */
+// Libera o banco de times e todos os times armazenados nele.
 void liberaBDTimes(BDTimes *bd);
 
-/*
- * Carrega os times de um arquivo CSV.
- * path: caminho do arquivo que contem os dados dos times.
- * Retorna um ponteiro para o banco preenchido, ou NULL se nao conseguir carregar.
- */
+// Carrega os times de um arquivo CSV.
 BDTimes *carregaTimes(const char *path);
 
-/*
- * Busca um time pelo seu identificador.
- * bd: banco de times consultado.
- * id: identificador do time desejado.
- * Retorna o ponteiro para o time encontrado, ou NULL se o banco/id for invalido.
- */
+// Busca um time pelo seu identificador.
 Time *buscaTimePorId(BDTimes *bd, int id);
 
-/*
- * Busca e imprime times cujo nome comece com o prefixo informado.
- * bd: banco de times consultado.
- * prefixo: inicio do nome usado como filtro.
- */
+// Reinicia as estatisticas acumuladas de todos os times do banco.
+void reiniciarEstatisticasTimes(BDTimes *bd);
+
+// Busca e imprime times cujo nome comece com o prefixo informado.
 void buscaTimes(BDTimes *bd, const char prefixo[50]);
 
-/*
- * Imprime a tabela de classificacao com os dados atuais dos times.
- * bd: banco de times que sera percorrido.
- */
+// Imprime a tabela de classificacao com os dados atuais dos times.
 void imprimirTabelaClassificacao(BDTimes *bd);
+
+// Salva a classificacao atual em um arquivo CSV.
+void salvarClassificacaoCSV(BDTimes *bd, const char *path);
 
 #endif

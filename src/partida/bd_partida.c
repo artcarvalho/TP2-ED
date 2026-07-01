@@ -1,37 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "partida_internal.h"
+#include "time_internal.h"
 #include "bd_partida.h"
-#include "partida.h"
+
+struct BDPartidas
+{
+    Partida *inicio;
+    int qtd;
+};
 
 BDPartidas *criaBDPartidas()
 {
-    // Aloca o banco de partidas e inicia o contador sem registros.
     BDPartidas *bd = (BDPartidas *)malloc(sizeof(BDPartidas));
     if (bd == NULL)
         return NULL;
 
+    bd->inicio = NULL;
     bd->qtd = 0;
     return bd;
 }
 
+static void inserirPartidaFim(BDPartidas *bd, Partida *nova)
+{
+    if (bd == NULL || nova == NULL)
+        return;
+
+    if (bd->inicio == NULL)
+    {
+        bd->inicio = nova;
+        bd->qtd++;
+        return;
+    }
+
+    Partida *atual = bd->inicio;
+    while (partidaGetProxima(atual) != NULL)
+    {
+        atual = partidaGetProxima(atual);
+    }
+
+    partidaSetProxima(atual, nova);
+    bd->qtd++;
+}
+
 void liberarBDPartidas(BDPartidas *bd)
 {
-    // Libera apenas a estrutura principal, pois as partidas ficam armazenadas no vetor interno.
-    if (bd != NULL)
+    if (bd == NULL)
+        return;
+
+    Partida *atual = bd->inicio;
+    while (atual != NULL)
     {
-        free(bd);
+        Partida *proximo = partidaGetProxima(atual);
+        liberaPartida(atual);
+        atual = proximo;
     }
+
+    free(bd);
 }
 
 BDPartidas *carregaPartidas(const char *path)
 {
-    // Abre o arquivo informado e prepara o banco antes de ler as linhas do CSV.
     FILE *a = fopen(path, "r");
     if (a == NULL)
-    {
         return NULL;
-    }
 
     BDPartidas *bd = criaBDPartidas();
     if (bd == NULL)
@@ -40,18 +73,12 @@ BDPartidas *carregaPartidas(const char *path)
         return NULL;
     }
 
-    char linha[200];
-    fgets(linha, sizeof(linha), a); // pula o cabeçalho do CSV
+    char linha[256];
+    fgets(linha, sizeof(linha), a);
 
     while (fgets(linha, sizeof(linha), a) != NULL)
     {
-
-        int tamanho = strlen(linha);
-
-        if (tamanho > 0 && linha[tamanho - 1] == '\n')
-        {
-            linha[tamanho - 1] = '\0';
-        }
+        linha[strcspn(linha, "\r\n")] = '\0';
 
         char *id_str = strtok(linha, ",");
         char *t1_str = strtok(NULL, ",");
@@ -59,110 +86,212 @@ BDPartidas *carregaPartidas(const char *path)
         char *g1_str = strtok(NULL, ",");
         char *g2_str = strtok(NULL, ",");
 
-        // Converte os campos separados por vírgula e armazena até o limite do vetor.
-        if (bd->qtd < 150)
-        {
-            int id = atoi(id_str);
-            int t1 = atoi(t1_str);
-            int t2 = atoi(t2_str);
-            int g1 = atoi(g1_str);
-            int g2 = atoi(g2_str);
+        if (id_str == NULL || t1_str == NULL || t2_str == NULL || g1_str == NULL || g2_str == NULL)
+            continue;
 
-            bd->partidas[bd->qtd] = criaPartida(id, t1, t2, g1, g2);
-            bd->qtd++;
+        Partida *nova = criaPartida(atoi(id_str), atoi(t1_str), atoi(t2_str), atoi(g1_str), atoi(g2_str));
+        if (nova == NULL)
+        {
+            liberarBDPartidas(bd);
+            fclose(a);
+            return NULL;
         }
+
+        inserirPartidaFim(bd, nova);
     }
 
     fclose(a);
     return bd;
 }
 
+Partida *buscaPartidaPorId(BDPartidas *bd, int id)
+{
+    if (bd == NULL || id < 0)
+        return NULL;
+
+    for (Partida *atual = bd->inicio; atual != NULL; atual = partidaGetProxima(atual))
+    {
+        if (partidaGetId(atual) == id)
+            return atual;
+    }
+
+    return NULL;
+}
+
 void consultarPartidas(BDPartidas *bd_partidas, BDTimes *bd_times, const char *nome_busca, int modo)
 {
-    // Interrompe a consulta se algum banco ou termo de busca não estiver disponível.
     if (bd_partidas == NULL || bd_times == NULL || nome_busca == NULL)
         return;
+
+    if (modo < 1 || modo > 3)
+    {
+        printf("Modo de consulta invalido.\n");
+        return;
+    }
+
     int encontrado = 0;
     int tam_busca = strlen(nome_busca);
 
-    for (int i = 0; i < bd_partidas->qtd; i++)
-    {
-        Partida p = bd_partidas->partidas[i];
+    printf("%-4s %-16s %-16s %-7s %s\n", "ID", "Time1", "Time2", "Placar1", "Placar2");
 
-        // Usa a busca por ID para descobrir os nomes das equipes participantes
-        Time *t1 = buscaTimePorId(bd_times, p.id_time1);
-        Time *t2 = buscaTimePorId(bd_times, p.id_time2);
+    for (Partida *atual = bd_partidas->inicio; atual != NULL; atual = partidaGetProxima(atual))
+    {
+        Time *t1 = buscaTimePorId(bd_times, partidaGetTime1(atual));
+        Time *t2 = buscaTimePorId(bd_times, partidaGetTime2(atual));
 
         if (t1 == NULL || t2 == NULL)
             continue;
 
         int corresponde = 0;
 
-        // Filtra os placares dependendo do modo de consulta selecionado pelo usuário
-        if (modo == 1 && strncmp(t1->nome, nome_busca, tam_busca) == 0)
+        if (modo == 1 && strncmp(timeGetNome(t1), nome_busca, tam_busca) == 0)
             corresponde = 1;
-        else if (modo == 2 && strncmp(t2->nome, nome_busca, tam_busca) == 0)
+        else if (modo == 2 && strncmp(timeGetNome(t2), nome_busca, tam_busca) == 0)
             corresponde = 1;
-        else if (modo == 3 && (strncmp(t1->nome, nome_busca, tam_busca) == 0 || strncmp(t2->nome, nome_busca, tam_busca) == 0))
-        {
+        else if (modo == 3 && (strncmp(timeGetNome(t1), nome_busca, tam_busca) == 0 || strncmp(timeGetNome(t2), nome_busca, tam_busca) == 0))
             corresponde = 1;
-        }
 
-        if (corresponde) {
-            if (!encontrado) {
-                printf("%-3s %-15s %-15s\n", "ID", "Time1", "Time2");
-                encontrado = 1;
-            }
-            if (!strcmp(t1->nome, "ESCorpiões"))
-            {
-                printf("%-3d %-15s  %d x %d  %-15s\n", p.id, t1->nome, p.gols_time1, p.gols_time2, t2->nome);
-            }
-            else
-            {
-                printf("%-3d %-15s %d x %d  %-15s\n", p.id, t1->nome, p.gols_time1, p.gols_time2, t2->nome);
-            }
+        if (corresponde)
+        {
+            printf("%-4d %-16s %-16s %-7d %d\n",
+                   partidaGetId(atual), timeGetNome(t1), timeGetNome(t2), partidaGetGolsTime1(atual), partidaGetGolsTime2(atual));
+            encontrado = 1;
         }
     }
+
     if (!encontrado)
     {
         printf("Nenhuma partida encontrada para a busca \"%s\".\n", nome_busca);
     }
 }
 
+static int maiorIdPartidas(BDPartidas *bd)
+{
+    int maior = -1;
+
+    if (bd == NULL)
+        return maior;
+
+    for (Partida *atual = bd->inicio; atual != NULL; atual = partidaGetProxima(atual))
+    {
+        if (partidaGetId(atual) > maior)
+            maior = partidaGetId(atual);
+    }
+
+    return maior;
+}
+
+int inserirPartida(BDPartidas *bd_partidas, BDTimes *bd_times, int id_time1, int id_time2, int gols_time1, int gols_time2)
+{
+    if (bd_partidas == NULL || bd_times == NULL)
+        return 0;
+
+    if (id_time1 == id_time2)
+        return 0;
+
+    if (buscaTimePorId(bd_times, id_time1) == NULL || buscaTimePorId(bd_times, id_time2) == NULL)
+        return 0;
+
+    Partida *nova = criaPartida(maiorIdPartidas(bd_partidas) + 1, id_time1, id_time2, gols_time1, gols_time2);
+    if (nova == NULL)
+        return 0;
+
+    inserirPartidaFim(bd_partidas, nova);
+    return 1;
+}
+
+int atualizarPartida(BDPartidas *bd_partidas, int id_partida, int gols_time1, int gols_time2)
+{
+    Partida *p = buscaPartidaPorId(bd_partidas, id_partida);
+    if (p == NULL)
+        return 0;
+
+    partidaSetGols(p, gols_time1, gols_time2);
+    return 1;
+}
+
+int removerPartida(BDPartidas *bd_partidas, int id_partida)
+{
+    if (bd_partidas == NULL)
+        return 0;
+
+    Partida *anterior = NULL;
+    Partida *atual = bd_partidas->inicio;
+
+    while (atual != NULL)
+    {
+        if (partidaGetId(atual) == id_partida)
+        {
+            if (anterior == NULL)
+                bd_partidas->inicio = partidaGetProxima(atual);
+            else
+                partidaSetProxima(anterior, partidaGetProxima(atual));
+
+            liberaPartida(atual);
+            bd_partidas->qtd--;
+            return 1;
+        }
+
+        anterior = atual;
+        atual = partidaGetProxima(atual);
+    }
+
+    return 0;
+}
+
 void processaCampeonato(BDPartidas *bd_partidas, BDTimes *bd_times)
 {
-    // Usa todas as partidas carregadas para atualizar as estatísticas dos times.
     if (bd_partidas == NULL || bd_times == NULL)
         return;
 
-    // Distribui os pontos
-    for (int i = 0; i < bd_partidas->qtd; i++)
+    reiniciarEstatisticasTimes(bd_times);
+
+    for (Partida *p = bd_partidas->inicio; p != NULL; p = partidaGetProxima(p))
     {
-        Partida p = bd_partidas->partidas[i];
-        Time *t1 = buscaTimePorId(bd_times, p.id_time1);
-        Time *t2 = buscaTimePorId(bd_times, p.id_time2);
+        Time *t1 = buscaTimePorId(bd_times, partidaGetTime1(p));
+        Time *t2 = buscaTimePorId(bd_times, partidaGetTime2(p));
 
-        // Atualiza a quantidade de gols marcados e sofridos de ambos
-        t1->gols_marcados += p.gols_time1;
-        t1->gols_sofridos += p.gols_time2;
-        t2->gols_marcados += p.gols_time2;
-        t2->gols_sofridos += p.gols_time1;
+        if (t1 == NULL || t2 == NULL)
+            continue;
 
-        // Avalia as condições para computar Vitórias, Empates e Derrotas
-        if (p.gols_time1 > p.gols_time2)
+        timeAdicionarGolsMarcados(t1, partidaGetGolsTime1(p));
+        timeAdicionarGolsSofridos(t1, partidaGetGolsTime2(p));
+        timeAdicionarGolsMarcados(t2, partidaGetGolsTime2(p));
+        timeAdicionarGolsSofridos(t2, partidaGetGolsTime1(p));
+
+        if (partidaGetGolsTime1(p) > partidaGetGolsTime2(p))
         {
-            t1->vitorias++;
-            t2->derrotas++;
+            timeAdicionarVitoria(t1);
+            timeAdicionarDerrota(t2);
         }
-        else if (p.gols_time1 < p.gols_time2)
+        else if (partidaGetGolsTime1(p) < partidaGetGolsTime2(p))
         {
-            t2->vitorias++;
-            t1->derrotas++;
+            timeAdicionarVitoria(t2);
+            timeAdicionarDerrota(t1);
         }
         else
         {
-            t1->empates++;
-            t2->empates++;
+            timeAdicionarEmpate(t1);
+            timeAdicionarEmpate(t2);
         }
     }
+}
+
+void salvarBDPartidasCSV(BDPartidas *bd_partidas, const char *path)
+{
+    if (bd_partidas == NULL || path == NULL)
+        return;
+
+    FILE *f = fopen(path, "w");
+    if (f == NULL)
+        return;
+
+    fprintf(f, "ID,Time1,Time2,GolsTime1,GolsTime2\n");
+    for (Partida *atual = bd_partidas->inicio; atual != NULL; atual = partidaGetProxima(atual))
+    {
+        fprintf(f, "%d,%d,%d,%d,%d\n",
+                partidaGetId(atual), partidaGetTime1(atual), partidaGetTime2(atual), partidaGetGolsTime1(atual), partidaGetGolsTime2(atual));
+    }
+
+    fclose(f);
 }

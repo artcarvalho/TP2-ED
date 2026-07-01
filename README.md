@@ -68,7 +68,7 @@ O executável é gerado em `build/programa`.
 
 ## Como Executar
 
-Por padrão o programa carrega `data/partidas_vazio.csv`:
+Por padrão o programa carrega `data/partidas_completo.csv`:
 
 ```bash
 ./build/programa
